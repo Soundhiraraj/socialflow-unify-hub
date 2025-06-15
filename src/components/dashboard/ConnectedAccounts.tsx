@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Plus, CheckCircle, Users, Settings } from 'lucide-react';
 import { SocialMediaAPI, ConnectedAccountData } from '@/services/socialMediaAPI';
 import { OAuthModal } from '@/components/auth/OAuthModal';
 import { useToast } from '@/hooks/use-toast';
+import { formatFollowerCount } from '@/utils/formatters';
 
 export const ConnectedAccounts = () => {
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccountData[]>([]);
@@ -46,15 +46,6 @@ export const ConnectedAccounts = () => {
       description: error,
       variant: "destructive"
     });
-  };
-
-  const formatFollowerCount = (count: number): string => {
-    if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M`;
-    } else if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
   };
 
   return (
