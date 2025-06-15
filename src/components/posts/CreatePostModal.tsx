@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, Image, Calendar, Send, Save } from 'lucide-react';
+import { DataManager } from '@/utils/dataManager';
+import { useToast } from '@/hooks/use-toast';
 
 interface CreatePostModalProps {
   open: boolean;
@@ -21,13 +23,9 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
   const [schedulingOption, setSchedulingOption] = useState('now');
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
+  const { toast } = useToast();
 
-  const platforms = [
-    { id: 'instagram', name: 'Instagram', icon: '📷', connected: true },
-    { id: 'facebook', name: 'Facebook', icon: '📘', connected: true },
-    { id: 'twitter', name: 'Twitter/X', icon: '🐦', connected: false },
-    { id: 'linkedin', name: 'LinkedIn', icon: '💼', connected: false },
-  ];
+  const connectedAccounts = DataManager.getConnectedAccounts();
 
   const handlePlatformToggle = (platformId: string) => {
     setSelectedPlatforms(prev => 
@@ -38,13 +36,57 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
   };
 
   const handleSubmit = (action: 'publish' | 'schedule' | 'draft') => {
-    console.log({
+    if (!postContent.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter some content for your post.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (action !== 'draft' && selectedPlatforms.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one platform.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (action === 'schedule' && (!scheduleDate || !scheduleTime)) {
+      toast({
+        title: "Error",
+        description: "Please select a date and time for scheduling.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const scheduledTime = action === 'schedule' 
+      ? `${scheduleDate}T${scheduleTime}:00`
+      : undefined;
+
+    const newPost = DataManager.addPost({
       content: postContent,
       platforms: selectedPlatforms,
-      action,
-      scheduleDate: schedulingOption === 'schedule' ? scheduleDate : null,
-      scheduleTime: schedulingOption === 'schedule' ? scheduleTime : null
+      scheduledTime,
+      status: action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled' : 'draft'
     });
+
+    const actionText = action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled' : 'saved as draft';
+    toast({
+      title: "Success",
+      description: `Post has been ${actionText} successfully!`
+    });
+
+    // Reset form
+    setPostContent('');
+    setSelectedPlatforms([]);
+    setSchedulingOption('now');
+    setScheduleDate('');
+    setScheduleTime('');
+    
     onOpenChange(false);
   };
 
@@ -92,26 +134,26 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
           <div className="space-y-3">
             <Label>Select Platforms</Label>
             <div className="grid grid-cols-2 gap-3">
-              {platforms.map((platform) => (
+              {connectedAccounts.map((account) => (
                 <div
-                  key={platform.id}
+                  key={account.id}
                   className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                    !platform.connected
+                    !account.connected
                       ? 'opacity-50 cursor-not-allowed'
-                      : selectedPlatforms.includes(platform.id)
+                      : selectedPlatforms.includes(account.platform)
                       ? 'border-blue-500 bg-blue-50'
                       : 'hover:bg-gray-50'
                   }`}
-                  onClick={() => platform.connected && handlePlatformToggle(platform.id)}
+                  onClick={() => account.connected && handlePlatformToggle(account.platform)}
                 >
                   <Checkbox
-                    checked={selectedPlatforms.includes(platform.id)}
-                    disabled={!platform.connected}
+                    checked={selectedPlatforms.includes(account.platform)}
+                    disabled={!account.connected}
                   />
-                  <span className="text-lg">{platform.icon}</span>
+                  <span className="text-lg">{account.avatar}</span>
                   <div>
-                    <span className="font-medium text-sm">{platform.name}</span>
-                    {!platform.connected && (
+                    <span className="font-medium text-sm">{account.name}</span>
+                    {!account.connected && (
                       <span className="block text-xs text-gray-500">Not connected</span>
                     )}
                   </div>

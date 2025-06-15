@@ -1,17 +1,36 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, CheckCircle } from 'lucide-react';
+import { DataManager } from '@/utils/dataManager';
+import { ConnectedAccount } from '@/types';
+import { useToast } from '@/hooks/use-toast';
 
 export const ConnectedAccounts = () => {
-  const platforms = [
-    { name: 'Instagram', connected: true, followers: '12.4K', avatar: '📷' },
-    { name: 'Facebook', connected: true, followers: '8.2K', avatar: '📘' },
-    { name: 'Twitter/X', connected: false, followers: '0', avatar: '🐦' },
-    { name: 'LinkedIn', connected: false, followers: '0', avatar: '💼' },
-  ];
+  const [platforms, setPlatforms] = useState<ConnectedAccount[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadAccounts();
+  }, []);
+
+  const loadAccounts = () => {
+    const accounts = DataManager.getConnectedAccounts();
+    setPlatforms(accounts);
+  };
+
+  const handleToggleConnection = (platformId: string, currentStatus: boolean) => {
+    DataManager.updateAccountConnection(platformId, !currentStatus);
+    loadAccounts();
+    
+    const action = !currentStatus ? 'connected' : 'disconnected';
+    toast({
+      title: "Success",
+      description: `Account ${action} successfully!`
+    });
+  };
 
   return (
     <Card>
@@ -25,8 +44,8 @@ export const ConnectedAccounts = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {platforms.map((platform, index) => (
-          <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+        {platforms.map((platform) => (
+          <div key={platform.id} className="flex items-center justify-between p-3 border rounded-lg">
             <div className="flex items-center space-x-3">
               <span className="text-2xl">{platform.avatar}</span>
               <div>
@@ -41,9 +60,13 @@ export const ConnectedAccounts = () => {
                 </span>
               </div>
             </div>
-            <Badge variant={platform.connected ? "secondary" : "outline"}>
-              {platform.connected ? 'Connected' : 'Connect'}
-            </Badge>
+            <Button
+              variant={platform.connected ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => handleToggleConnection(platform.id, platform.connected)}
+            >
+              {platform.connected ? 'Disconnect' : 'Connect'}
+            </Button>
           </div>
         ))}
       </CardContent>
