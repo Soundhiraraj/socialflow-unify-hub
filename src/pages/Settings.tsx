@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { DataManager } from '@/utils/dataManager';
 import { UserSettings } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { ApiKeysSettings } from '@/components/settings/ApiKeysSettings';
 
 const Settings = () => {
   const [settings, setSettings] = useState<UserSettings>(DataManager.getSettings());
@@ -140,6 +141,8 @@ const Settings = () => {
                     </Button>
                   </CardContent>
                 </Card>
+
+                <ApiKeysSettings />
 
                 <Card>
                   <CardHeader>
