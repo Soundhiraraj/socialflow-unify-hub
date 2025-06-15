@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Shield, CheckCircle } from 'lucide-react';
-import { SocialPlatform } from '@/services/socialMediaAPI';
+import { SocialPlatform } from '@/services/social-media/types';
 
 interface PermissionsStepProps {
   platform: SocialPlatform;

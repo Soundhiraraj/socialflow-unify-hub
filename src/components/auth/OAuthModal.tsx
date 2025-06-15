@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SocialMediaAPI, SocialPlatform, AuthResponse } from '@/services/socialMediaAPI';
+import { SocialMediaAPI } from '@/services/social-media/api';
+import { SocialPlatform, AuthResponse } from '@/services/social-media/types';
 import { PermissionsStep } from './oauth/PermissionsStep';
 import { AuthenticatingStep } from './oauth/AuthenticatingStep';
 import { SuccessStep } from './oauth/SuccessStep';

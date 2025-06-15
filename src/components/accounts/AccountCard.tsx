@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Settings, ExternalLink, CheckCircle, Clock, AlertCircle, Users } from 'lucide-react';
-import { SocialPlatform, ConnectedAccountData } from '@/services/socialMediaAPI';
+import { SocialPlatform, ConnectedAccountData } from '@/services/social-media/types';
 import { formatFollowerCount } from '@/utils/formatters';
 
 interface AccountCardProps {
