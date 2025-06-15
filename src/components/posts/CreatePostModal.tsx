@@ -107,7 +107,6 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
                   <Checkbox
                     checked={selectedPlatforms.includes(platform.id)}
                     disabled={!platform.connected}
-                    readOnly
                   />
                   <span className="text-lg">{platform.icon}</span>
                   <div>
