@@ -76,29 +76,40 @@ const ConnectedAccountsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="flex h-screen">
-        <div className="hidden md:block">
+      <div className="flex flex-col md:flex-row h-full min-h-screen">
+        {/* Sidebar appears on the left for md+, top for mobile */}
+        <div className="md:w-64 w-full md:h-auto">
           <Sidebar />
         </div>
         
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header onCreatePost={() => {}} />
-          
-          <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6">
-            <div className="max-w-7xl mx-auto">
+
+          <main className="flex-1 w-full px-3 py-4 md:p-6 overflow-x-hidden overflow-y-auto max-w-7xl mx-auto">
+            <div>
               <div className="mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-xl xs:text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2">
                   Connected Accounts
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm md:text-base">
                   Connect your social media accounts to manage them from one place
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div
+                className="
+                  grid
+                  gap-4
+                  sm:gap-5
+                  md:gap-6
+                  grid-cols-1
+                  sm:grid-cols-2
+                  lg:grid-cols-3
+                "
+              >
                 {SocialMediaAPI.PLATFORMS.map((platform) => {
                   const connectedAccount = connectedAccounts.find(acc => acc.platform === platform.id);
-                  
+
                   return (
                     <AccountCard
                       key={platform.id}
@@ -113,9 +124,9 @@ const ConnectedAccountsPage = () => {
               </div>
 
               {connectedAccounts.length > 0 && (
-                <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl sm:max-w-3xl mx-auto">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div>
                       <h3 className="font-medium text-blue-900">
                         {connectedAccounts.length} Account{connectedAccounts.length !== 1 ? 's' : ''} Connected
@@ -144,3 +155,4 @@ const ConnectedAccountsPage = () => {
 };
 
 export default ConnectedAccountsPage;
+
