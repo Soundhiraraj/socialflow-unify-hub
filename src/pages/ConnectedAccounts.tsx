@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -137,7 +136,9 @@ const ConnectedAccountsPage = () => {
                           </div>
                           <div className="flex items-center space-x-2">
                             {isExpiringSoon && (
-                              <AlertCircle className="w-4 h-4 text-amber-500" title="Token expiring soon" />
+                              <span title="Token expiring soon">
+                                <AlertCircle className="w-4 h-4 text-amber-500" />
+                              </span>
                             )}
                             <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
                           </div>
