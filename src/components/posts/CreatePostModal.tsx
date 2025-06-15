@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, Image, Calendar, Send, Save } from 'lucide-react';
 import { DataManager } from '@/utils/dataManager';
 import { useToast } from '@/hooks/use-toast';
+import type { MediaItem } from '@/types';
 
 interface CreatePostModalProps {
   open: boolean;
@@ -23,6 +24,8 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
   const [schedulingOption, setSchedulingOption] = useState('now');
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
+  const [selectedMedia, setSelectedMedia] = useState<MediaItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { toast } = useToast();
 
   const connectedAccounts = DataManager.getConnectedAccounts();
@@ -33,6 +36,32 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
         ? prev.filter(id => id !== platformId)
         : [...prev, platformId]
     );
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newMedia: MediaItem[] = [];
+    Array.from(files).forEach((file) => {
+      const url = URL.createObjectURL(file);
+      const type = file.type.startsWith('video/') ? 'video' : 'image';
+      const size = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+      // optionally, you can save in DataManager for full MediaLibrary integration
+      const mediaItem = DataManager.addMediaItem({
+        name: file.name,
+        type,
+        size,
+        url
+      });
+      newMedia.push(mediaItem);
+    });
+    setSelectedMedia((curr) => [...curr, ...newMedia]);
+    event.target.value = '';
+  };
+
+  const handleRemoveMedia = (id: string) => {
+    setSelectedMedia((curr) => curr.filter((item) => item.id !== id));
   };
 
   const handleSubmit = (action: 'publish' | 'schedule' | 'draft') => {
@@ -71,7 +100,8 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
       content: postContent,
       platforms: selectedPlatforms,
       scheduledTime,
-      status: action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled' : 'draft'
+      status: action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled' : 'draft',
+      mediaUrls: selectedMedia.map(item => item.url),
     });
 
     const actionText = action === 'publish' ? 'published' : action === 'schedule' ? 'scheduled' : 'saved as draft';
@@ -86,6 +116,7 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
     setSchedulingOption('now');
     setScheduleDate('');
     setScheduleTime('');
+    setSelectedMedia([]);
     
     onOpenChange(false);
   };
@@ -122,10 +153,44 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
               <div className="text-center">
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-600 mb-2">Upload images or videos</p>
-                <Button variant="outline" size="sm">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="create-post-file-upload"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Image className="w-4 h-4 mr-2" />
                   Choose Files
                 </Button>
+                {/* Show previews of selected images/videos */}
+                {selectedMedia.length > 0 && (
+                  <div className="mt-4 flex gap-3 flex-wrap justify-center">
+                    {selectedMedia.map((item) => (
+                      <div key={item.id} className="relative w-20 h-20 flex-shrink-0 border rounded overflow-hidden bg-gray-100">
+                        {item.type === 'image' 
+                          ? <img src={item.url} alt={item.name} className="object-cover w-full h-full" />
+                          : <video src={item.url} className="object-cover w-full h-full" />
+                        }
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-0 right-0 w-5 h-5 text-xs p-0"
+                          onClick={() => handleRemoveMedia(item.id)}
+                          type="button"
+                        >×</Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -203,6 +268,7 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
           <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
             <Button
               variant="outline"
+              type="button"
               onClick={() => handleSubmit('draft')}
               className="flex-1"
             >
@@ -212,6 +278,7 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
             
             {schedulingOption === 'schedule' ? (
               <Button
+                type="button"
                 onClick={() => handleSubmit('schedule')}
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
                 disabled={selectedPlatforms.length === 0}
@@ -221,6 +288,7 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
               </Button>
             ) : (
               <Button
+                type="button"
                 onClick={() => handleSubmit('publish')}
                 className="flex-1 bg-green-600 hover:bg-green-700"
                 disabled={selectedPlatforms.length === 0}
@@ -235,3 +303,6 @@ export const CreatePostModal = ({ open, onOpenChange }: CreatePostModalProps) =>
     </Dialog>
   );
 };
+
+// NOTE: This file is growing long (over 240 lines). For maintainability, consider splitting out media upload and previews into a dedicated component next for easier scaling.
+// ... end of CreatePostModal.tsx
