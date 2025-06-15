@@ -2,7 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Users } from 'lucide-react';
-import { SocialPlatform, AuthResponse } from '@/services/socialMediaAPI';
+import { SocialPlatform, AuthResponse } from '@/services/social-media/types';
 
 interface SuccessStepProps {
   platform: SocialPlatform;

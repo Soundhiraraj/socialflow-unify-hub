@@ -1,78 +1,14 @@
 
 import { LocalStorageManager } from '@/utils/localStorage';
-
-export interface SocialPlatform {
-  id: string;
-  name: string;
-  displayName: string;
-  icon: string;
-  color: string;
-  authUrl: string;
-  scopes: string[];
-}
-
-export interface ConnectedAccountData {
-  id: string;
-  platform: string;
-  username: string;
-  displayName: string;
-  profilePicture: string;
-  followers: number;
-  isVerified: boolean;
-  accessToken: string; // Simulated token
-  refreshToken: string; // Simulated token
-  expiresAt: string;
-  connectedAt: string;
-}
-
-export interface AuthResponse {
-  success: boolean;
-  account?: ConnectedAccountData;
-  error?: string;
-}
+import { SocialPlatform, ConnectedAccountData, AuthResponse } from './types';
+import { PLATFORMS } from './platforms';
+import { generateMockAccountData } from './mockData';
 
 export class SocialMediaAPI {
   private static readonly CONNECTED_ACCOUNTS_KEY = 'connected_social_accounts';
   private static readonly AUTH_STATE_KEY = 'auth_state';
 
-  static readonly PLATFORMS: SocialPlatform[] = [
-    {
-      id: 'instagram',
-      name: 'instagram',
-      displayName: 'Instagram',
-      icon: '📷',
-      color: 'bg-gradient-to-r from-purple-500 to-pink-500',
-      authUrl: 'https://api.instagram.com/oauth/authorize',
-      scopes: ['user_profile', 'user_media']
-    },
-    {
-      id: 'facebook',
-      name: 'facebook',
-      displayName: 'Facebook',
-      icon: '📘',
-      color: 'bg-blue-600',
-      authUrl: 'https://www.facebook.com/v18.0/dialog/oauth',
-      scopes: ['pages_manage_posts', 'pages_read_engagement']
-    },
-    {
-      id: 'twitter',
-      name: 'twitter',
-      displayName: 'X (Twitter)',
-      icon: '🐦',
-      color: 'bg-black',
-      authUrl: 'https://twitter.com/i/oauth2/authorize',
-      scopes: ['tweet.read', 'tweet.write', 'users.read']
-    },
-    {
-      id: 'linkedin',
-      name: 'linkedin',
-      displayName: 'LinkedIn',
-      icon: '💼',
-      color: 'bg-blue-700',
-      authUrl: 'https://www.linkedin.com/oauth/v2/authorization',
-      scopes: ['r_liteprofile', 'w_member_social']
-    }
-  ];
+  static readonly PLATFORMS: SocialPlatform[] = PLATFORMS;
 
   static getConnectedAccounts(): ConnectedAccountData[] {
     return LocalStorageManager.getItem<ConnectedAccountData[]>(this.CONNECTED_ACCOUNTS_KEY) || [];
@@ -160,7 +96,7 @@ export class SocialMediaAPI {
       return { success: false, error: 'Platform not found' };
     }
 
-    const mockAccountData = this.generateMockAccountData(platformId, platform.displayName);
+    const mockAccountData = generateMockAccountData(platformId, platform.displayName);
     const accounts = this.getConnectedAccounts();
     
     // Remove existing account for this platform
@@ -185,39 +121,6 @@ export class SocialMediaAPI {
 
     this.saveConnectedAccounts(filteredAccounts);
     return true;
-  }
-
-  private static generateMockAccountData(platformId: string, platformName: string): ConnectedAccountData {
-    const usernames = {
-      instagram: ['@creative_studio', '@brand_official', '@marketing_pro', '@content_creator'],
-      facebook: ['Creative Studio Page', 'Brand Official', 'Marketing Pro', 'Content Creator'],
-      twitter: ['@creative_studio', '@brand_official', '@marketing_pro', '@content_creator'],
-      linkedin: ['Creative Studio', 'Brand Official', 'Marketing Professional', 'Content Creator']
-    };
-
-    const displayNames = {
-      instagram: ['Creative Studio', 'Brand Official', 'Marketing Pro', 'Content Creator'],
-      facebook: ['Creative Studio', 'Brand Official', 'Marketing Pro', 'Content Creator'],
-      twitter: ['Creative Studio', 'Brand Official', 'Marketing Pro', 'Content Creator'],
-      linkedin: ['Creative Studio', 'Brand Official', 'Marketing Professional', 'Content Creator']
-    };
-
-    const randomIndex = Math.floor(Math.random() * 4);
-    const followersCount = Math.floor(Math.random() * 50000) + 1000;
-
-    return {
-      id: `${platformId}_${Date.now()}`,
-      platform: platformId,
-      username: usernames[platformId as keyof typeof usernames][randomIndex],
-      displayName: displayNames[platformId as keyof typeof displayNames][randomIndex],
-      profilePicture: '/placeholder.svg',
-      followers: followersCount,
-      isVerified: Math.random() > 0.7,
-      accessToken: `${platformId}_access_${Math.random().toString(36).substring(2)}`,
-      refreshToken: `${platformId}_refresh_${Math.random().toString(36).substring(2)}`,
-      expiresAt: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
-      connectedAt: new Date().toISOString()
-    };
   }
 
   static async refreshToken(platformId: string): Promise<boolean> {

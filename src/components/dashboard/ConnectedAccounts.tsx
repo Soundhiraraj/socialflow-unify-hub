@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, CheckCircle, Users, Settings } from 'lucide-react';
-import { SocialMediaAPI, ConnectedAccountData } from '@/services/socialMediaAPI';
+import { SocialMediaAPI } from '@/services/social-media/api';
+import { ConnectedAccountData } from '@/services/social-media/types';
 import { OAuthModal } from '@/components/auth/OAuthModal';
 import { useToast } from '@/hooks/use-toast';
 import { formatFollowerCount } from '@/utils/formatters';

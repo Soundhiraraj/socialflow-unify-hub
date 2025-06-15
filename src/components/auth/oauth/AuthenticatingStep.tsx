@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Loader2, Shield } from 'lucide-react';
-import { SocialPlatform } from '@/services/socialMediaAPI';
+import { SocialPlatform } from '@/services/social-media/types';
 
 interface AuthenticatingStepProps {
   platform: SocialPlatform;

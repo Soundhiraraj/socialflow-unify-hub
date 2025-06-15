@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { XCircle } from 'lucide-react';
-import { AuthResponse } from '@/services/socialMediaAPI';
+import { AuthResponse } from '@/services/social-media/types';
 
 interface ErrorStepProps {
   authResult: AuthResponse | null;
