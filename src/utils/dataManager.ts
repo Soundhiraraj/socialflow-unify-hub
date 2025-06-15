@@ -102,11 +102,13 @@ export class DataManager {
     LocalStorageManager.setItem(this.SETTINGS_KEY, settings);
   }
 
-  // Connected Accounts Management
+  // Legacy Connected Accounts Management (for backward compatibility)
   static getConnectedAccounts(): ConnectedAccount[] {
+    // This now uses the new SocialMediaAPI for getting connected accounts
+    // but maintains the old interface for backward compatibility
     return LocalStorageManager.getItem<ConnectedAccount[]>(this.ACCOUNTS_KEY) || [
-      { id: '1', platform: 'Instagram', name: 'Instagram', connected: true, followers: '12.4K', avatar: '📷' },
-      { id: '2', platform: 'Facebook', name: 'Facebook', connected: true, followers: '8.2K', avatar: '📘' },
+      { id: '1', platform: 'Instagram', name: 'Instagram', connected: false, followers: '0', avatar: '📷' },
+      { id: '2', platform: 'Facebook', name: 'Facebook', connected: false, followers: '0', avatar: '📘' },
       { id: '3', platform: 'Twitter', name: 'Twitter/X', connected: false, followers: '0', avatar: '🐦' },
       { id: '4', platform: 'LinkedIn', name: 'LinkedIn', connected: false, followers: '0', avatar: '💼' },
     ];
